@@ -3,6 +3,9 @@
   font-size: 14px;
   position: relative;
   color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &.white {
     background: #ebecd0;
   }
@@ -10,5 +13,8 @@
     position: absolute;
     top: 2px;
     left: 2px;
+  }
+  .piece {
+    height: 80%;
   }
 }
