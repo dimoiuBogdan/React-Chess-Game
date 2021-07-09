@@ -1,20 +1,24 @@
-import { useEffect, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Board.scss";
 
 const Board = () => {
   const yAxis = [1, 2, 3, 4, 5, 6, 7, 8];
   const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
-  // Adaugam variabila loading pentru a efectua un re-render dupa popularea pieselor
-  const [loading, setLoading] = useState(true);
-  const [board, setBoard] = useState([]);
-  const [PIECES_IMAGES, setPieces] = useState([]);
+  let board = [];
+  let pieces = [];
+
+  const addBackLinePiece = (x, y, image) => {
+    pieces.push({
+      image,
+      x,
+      y,
+    });
+  };
 
   const populatePieces = () => {
-    let temporaryPieces = [];
     // Adaugam pionii de sus
     for (let i = 0; i < 8; i++) {
-      temporaryPieces.push({
+      pieces.push({
         image: "PIECES_IMAGES/pawn_b.png",
         x: i,
         y: 6,
@@ -23,7 +27,7 @@ const Board = () => {
 
     // Adaugam pionii de jos
     for (let j = 0; j < 8; j++) {
-      temporaryPieces.push({
+      pieces.push({
         image: "PIECES_IMAGES/pawn_w.png",
         x: j,
         y: 1,
@@ -76,37 +80,26 @@ const Board = () => {
       // pe cele de sus, respectiv de pe randul 7 )
       for (let pos = 0; pos < 2; pos++)
         addBackLinePiece(
-          temporaryPieces,
           piece.x,
           pos === 0 ? 0 : 7,
           // daca pozitia este 0 ( suntem pe y 0 ) schimbam culoarea pieselor in alb
           pos === 0 ? piece.image.replace("_b", "_w") : piece.image
         );
     });
-
-    setPieces(temporaryPieces);
   };
-
-  const addBackLinePiece = (temporaryPieces, x, y, image) => {
-    temporaryPieces.push({
-      image,
-      x,
-      y,
-    });
-  };
+  populatePieces();
 
   const createBoard = () => {
-    let temporaryBoard = [];
     // Cele 2 for-uri sunt inversate pentru a crea tabla de sus in jos, nu de la stanga la dreapta
     for (let j = yAxis.length - 1; j >= 0; j--)
       for (let i = 0; i < xAxis.length; i++) {
         let image;
-        PIECES_IMAGES.forEach((piece) => {
+        pieces.forEach((piece) => {
           // Verificam daca pozitiile la care am ajuns ([i][j]) sunt egale cu pozitiile unei piese, caz in care plasam imaginea piesei respective pe tabla
           if (piece.x === i && piece.y === j) image = piece.image;
         });
 
-        temporaryBoard.push(
+        board.push(
           <Tile
             key={`${xAxis[i]}${yAxis[j]}`}
             image={image}
@@ -117,14 +110,8 @@ const Board = () => {
           />
         );
       }
-    setBoard(temporaryBoard);
   };
-
-  useEffect(() => {
-    createBoard();
-    populatePieces();
-    setLoading(false);
-  }, [loading]);
+  createBoard();
 
   return <div id="board">{board}</div>;
 };
