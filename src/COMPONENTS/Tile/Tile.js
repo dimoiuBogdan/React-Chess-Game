@@ -7,7 +7,12 @@ const Tile = ({ i, j, xAxis, yAxis, image }) => {
         {xAxis[i].toUpperCase()}
         {yAxis[j]}
       </span>
-      <img className="piece" src={image} alt={image && "piece"} />
+      {image && (
+        <div
+          className="piece"
+          style={{ backgroundImage: `url(${image}) ` }}
+        ></div>
+      )}
     </div>
   );
 };

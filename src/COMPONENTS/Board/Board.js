@@ -6,6 +6,7 @@ const Board = () => {
   const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
   let board = [];
   let pieces = [];
+  let grabbedPiece;
 
   const addBackLinePiece = (x, y, image) => {
     pieces.push({
@@ -113,7 +114,45 @@ const Board = () => {
   };
   createBoard();
 
-  return <div id="board">{board}</div>;
+  const getPieceToCursor = (element, e) => {
+    // Aducem piesa la pozitia cursorului
+    const mouseX = e.clientX - 40;
+    const mouseY = e.clientY - 40;
+    element.style.position = "absolute";
+    element.style.left = `${mouseX}px`;
+    element.style.top = `${mouseY}px`;
+  };
+
+  const grabPiece = (e) => {
+    const clickedElement = e.target;
+    if (clickedElement.classList.contains("piece")) {
+      getPieceToCursor(clickedElement, e);
+    }
+    grabbedPiece = clickedElement;
+  };
+
+  const movePiece = (e) => {
+    if (grabbedPiece) {
+      getPieceToCursor(grabbedPiece, e);
+    }
+  };
+
+  const dropPiece = (e) => {
+    if (grabbedPiece) {
+      grabbedPiece = null;
+    }
+  };
+
+  return (
+    <div
+      onMouseMove={(e) => movePiece(e)}
+      onMouseDown={(e) => grabPiece(e)}
+      onMouseUp={(e) => dropPiece(e)}
+      id="board"
+    >
+      {board}
+    </div>
+  );
 };
 
 export default Board;

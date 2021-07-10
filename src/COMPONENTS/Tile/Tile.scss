@@ -1,15 +1,10 @@
 .tile {
   font-weight: 600;
   font-size: 14px;
-  position: relative;
   color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  &:hover {
-    border: 3px solid red;
-  }
   &.white {
     background: #ebecd0;
   }
@@ -19,6 +14,17 @@
     left: 2px;
   }
   .piece {
-    height: 80%;
+    background-position: center;
+    background-size: cover;
+    height: 75%;
+    max-width: 75px;
+    width: 75%;
+    max-height: 75px;
+    &:hover {
+      cursor: grab;
+    }
+    &:active {
+      cursor: grabbing;
+    }
   }
 }
