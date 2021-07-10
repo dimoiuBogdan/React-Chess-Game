@@ -1,9 +1,11 @@
+import { useRef } from "react";
 import Tile from "../Tile/Tile";
 import "./Board.scss";
 
 const Board = () => {
   const yAxis = [1, 2, 3, 4, 5, 6, 7, 8];
   const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
+  const boardRef = useRef(null);
   let board = [];
   let pieces = [];
   let grabbedPiece;
@@ -115,12 +117,35 @@ const Board = () => {
   createBoard();
 
   const getPieceToCursor = (element, e) => {
-    // Aducem piesa la pozitia cursorului
-    const mouseX = e.clientX - 40;
-    const mouseY = e.clientY - 40;
+    const pieceOffset = 20;
+    // Partea stanga a tablei
+    const minX = boardRef.current.offsetLeft - pieceOffset;
+    // Partea de sus a tablei
+    const minY = boardRef.current.offsetTop - pieceOffset;
+    // Partea dreapta a tablei
+    const maxX =
+      boardRef.current.offsetLeft +
+      boardRef.current.clientWidth -
+      3 * pieceOffset;
+    // Partea de jos a tablei
+    const maxY =
+      boardRef.current.offsetTop +
+      boardRef.current.clientHeight -
+      3 * pieceOffset;
+    const mouseX = e.clientX - 2 * pieceOffset;
+    const mouseY = e.clientY - 2 * pieceOffset;
     element.style.position = "absolute";
-    element.style.left = `${mouseX}px`;
-    element.style.top = `${mouseY}px`;
+
+    mouseX < minX
+      ? (element.style.left = `${minX}px`)
+      : mouseX > maxX
+      ? (element.style.left = `${maxX}px`)
+      : (element.style.left = `${mouseX}px`);
+    mouseY < minY
+      ? (element.style.top = `${minY}px`)
+      : mouseY > maxY
+      ? (element.style.top = `${maxY}px`)
+      : (element.style.top = `${mouseY}px`);
   };
 
   const grabPiece = (e) => {
@@ -149,6 +174,7 @@ const Board = () => {
       onMouseDown={(e) => grabPiece(e)}
       onMouseUp={(e) => dropPiece(e)}
       id="board"
+      ref={boardRef}
     >
       {board}
     </div>
