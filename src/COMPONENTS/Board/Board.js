@@ -1,27 +1,40 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Board.scss";
 
+let initialBoard = [];
 const Board = () => {
+  let board = [];
   const yAxis = [1, 2, 3, 4, 5, 6, 7, 8];
   const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
+  const [pieces, setPieces] = useState(initialBoard);
+  const [gridX, setGridX] = useState(0);
+  const [gridY, setGridY] = useState(0);
+  const [grabbedPiece, setGrabbedPiece] = useState(null);
   const boardRef = useRef(null);
-  let board = [];
-  let pieces = [];
-  let grabbedPiece;
 
   const addBackLinePiece = (x, y, image) => {
-    pieces.push({
+    initialBoard.push({
       image,
       x,
       y,
     });
   };
 
+  const returnBuggedValues = (e) => {
+    const buggedXValue = Math.floor(
+      (e.clientX - boardRef.current.offsetLeft) / 100
+    );
+    const buggedYValue = Math.abs(
+      Math.ceil((e.clientY - boardRef.current.offsetTop - 800) / 100)
+    );
+    return [buggedXValue, buggedYValue];
+  };
+
   const populatePieces = () => {
     // Adaugam pionii de sus
     for (let i = 0; i < 8; i++) {
-      pieces.push({
+      initialBoard.push({
         image: "PIECES_IMAGES/pawn_b.png",
         x: i,
         y: 6,
@@ -30,7 +43,7 @@ const Board = () => {
 
     // Adaugam pionii de jos
     for (let j = 0; j < 8; j++) {
-      pieces.push({
+      initialBoard.push({
         image: "PIECES_IMAGES/pawn_w.png",
         x: j,
         y: 1,
@@ -97,7 +110,7 @@ const Board = () => {
     for (let j = yAxis.length - 1; j >= 0; j--)
       for (let i = 0; i < xAxis.length; i++) {
         let image;
-        pieces.forEach((piece) => {
+        initialBoard.forEach((piece) => {
           // Verificam daca pozitiile la care am ajuns ([i][j]) sunt egale cu pozitiile unei piese, caz in care plasam imaginea piesei respective pe tabla
           if (piece.x === i && piece.y === j) image = piece.image;
         });
@@ -150,10 +163,13 @@ const Board = () => {
 
   const grabPiece = (e) => {
     const clickedElement = e.target;
-    if (clickedElement.classList.contains("piece")) {
+    if (clickedElement.classList.contains("piece") && boardRef.current) {
+      let [grabbedPieceX, grabbedPieceY] = returnBuggedValues(e);
+      setGridX(grabbedPieceX);
+      setGridY(grabbedPieceY);
       getPieceToCursor(clickedElement, e);
+      setGrabbedPiece(clickedElement);
     }
-    grabbedPiece = clickedElement;
   };
 
   const movePiece = (e) => {
@@ -164,7 +180,19 @@ const Board = () => {
 
   const dropPiece = (e) => {
     if (grabbedPiece) {
-      grabbedPiece = null;
+      let [pieceNewX, pieceNewY] = returnBuggedValues(e);
+      setPieces((prev) => {
+        const pieces = prev.map((piece) => {
+          if (piece.x === gridX && piece.y === gridY) {
+            piece.x = pieceNewX;
+            piece.y = pieceNewY;
+          }
+          return piece;
+        });
+        return pieces;
+      });
+      grabbedPiece.style.display = "none";
+      setGrabbedPiece(null);
     }
   };
 
