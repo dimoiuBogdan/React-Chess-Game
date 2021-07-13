@@ -187,28 +187,34 @@ export const Board = () => {
   const dropPiece = (e) => {
     if (grabbedPiece) {
       let [pieceNewX, pieceNewY] = returnGridValues(e);
+      // Piesa cu care am actionat
+      const currentPiece = pieces.find(
+        (piece) => piece.x === gridX && piece.y === gridY
+      );
 
-      setPieces((boardState) => {
-        const pieces = boardState.map((piece) => {
-          if (piece.x === gridX && piece.y === gridY) {
-            const validMove = isValidMove(
-              gridX,
-              gridY,
-              pieceNewX,
-              pieceNewY,
-              getPieceTypeFromImage(piece),
-              piece.team,
-              boardState
-            );
-            validMove
-              ? ([piece.x, piece.y] = [pieceNewX, pieceNewY])
-              : (grabbedPiece.style.position = "initial");
-          }
-          return piece;
-        });
-        return pieces;
-      });
+      if (currentPiece) {
+        const validMove = isValidMove(
+          gridX,
+          gridY,
+          pieceNewX,
+          pieceNewY,
+          getPieceTypeFromImage(currentPiece),
+          currentPiece.team,
+          pieces
+        );
 
+        if (validMove) {
+          const updatedPieces = pieces.reduce((results, piece) => {
+            if (piece.x === currentPiece.x && piece.y === currentPiece.y) {
+              [piece.x, piece.y] = [pieceNewX, pieceNewY];
+              results.push(piece);
+            } else if (!(piece.x === pieceNewX && piece.y === pieceNewY))
+              results.push(piece);
+            return results;
+          }, []);
+          setPieces(updatedPieces);
+        } else grabbedPiece.style.position = "initial";
+      }
       setGrabbedPiece(null);
     }
   };
