@@ -205,13 +205,22 @@ export const Board = () => {
 
         if (validMove) {
           const updatedPieces = pieces.reduce((results, piece) => {
+            // Mutam piesa actuala
             if (piece.x === currentPiece.x && piece.y === currentPiece.y) {
-              [piece.x, piece.y] = [pieceNewX, pieceNewY];
+              piece.x = pieceNewX;
+              piece.y = pieceNewY;
               results.push(piece);
-            } else if (!(piece.x === pieceNewX && piece.y === pieceNewY))
+            } else if (
+              /*Verificam daca exista o piesa pe pozitiile noi, caz in care nu o punem in results (BUGGED)*/ piece.x !==
+                pieceNewX ||
+              piece.y !== pieceNewY
+            ) {
               results.push(piece);
+            }
+
             return results;
           }, []);
+
           setPieces(updatedPieces);
         } else grabbedPiece.style.position = "initial";
       }
