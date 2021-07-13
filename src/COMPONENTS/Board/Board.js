@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { isValidMove } from "../Rules/Rules";
 import Tile from "../Tile/Tile";
 import "./Board.scss";
 
 export const Board = () => {
-  let initialBoard = [];
-  let board = [];
+  const initialBoard = [];
+  const board = [];
   const yAxis = [1, 2, 3, 4, 5, 6, 7, 8];
   const xAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const [pieces, setPieces] = useState([]);
@@ -13,20 +14,28 @@ export const Board = () => {
   const [grabbedPiece, setGrabbedPiece] = useState(null);
   const boardRef = useRef(null);
 
-  const addPiece = (x, y, image) => {
+  useEffect(() => {
+    populatePieces();
+    setPieces(initialBoard);
+  }, []);
+
+  const addPiece = (x, y, image, team) => {
     initialBoard.push({
       image,
       x,
       y,
+      team,
     });
   };
 
   const populatePieces = () => {
     // Adaugam pionii de sus
-    for (let i = 0; i < 8; i++) addPiece(i, 6, "PIECES_IMAGES/pawn_b.png");
+    for (let i = 0; i < 8; i++)
+      addPiece(i, 6, "PIECES_IMAGES/pawn_b.png", "opponent");
 
     // Adaugam pionii de jos
-    for (let j = 0; j < 8; j++) addPiece(j, 1, "PIECES_IMAGES/pawn_w.png");
+    for (let j = 0; j < 8; j++)
+      addPiece(j, 1, "PIECES_IMAGES/pawn_w.png", "our");
 
     const backLinePiecesPositions = [
       // Turele
@@ -72,29 +81,27 @@ export const Board = () => {
     backLinePiecesPositions.forEach((piece) => {
       // Pentru a injumatati piesele, facem un for care verifica daca pozitia este 0 ( caz in care le plasam pe cele de jos ) sau 1 ( caz in care le plasam
       // pe cele de sus, respectiv de pe randul 7 )
-      for (let pos = 0; pos < 2; pos++)
+      for (let pos = 0; pos < 2; pos++) {
+        // daca pozitia este 0 ( suntem pe y 0 ) inseamna ca piesele albe sunt ale noastre
+        const team = pos === 0 ? "opponent" : "our";
         addPiece(
           piece.x,
-          pos === 0 ? 0 : 7,
-          // daca pozitia este 0 ( suntem pe y 0 ) schimbam culoarea pieselor in alb
-          pos === 0 ? piece.image.replace("_b", "_w") : piece.image
+          team === "our" ? 0 : 7,
+          team === "our" ? piece.image.replace("_b", "_w") : piece.image,
+          team
         );
+      }
     });
   };
 
-  useEffect(() => {
-    populatePieces();
-    setPieces(initialBoard);
-  }, []);
-
   const returnGridValues = (e) => {
-    const buggedXValue = Math.floor(
+    const gridXValue = Math.floor(
       (e.clientX - boardRef.current.offsetLeft) / 100
     );
-    const buggedYValue = Math.abs(
+    const gridYValue = Math.abs(
       Math.ceil((e.clientY - boardRef.current.offsetTop - 800) / 100)
     );
-    return [buggedXValue, buggedYValue];
+    return [gridXValue, gridYValue];
   };
 
   const createBoard = () => {
@@ -170,19 +177,38 @@ export const Board = () => {
     }
   };
 
+  const getPieceTypeFromImage = (piece) => {
+    const firstSlash = piece.image.indexOf("/");
+    const lastLowBar = piece.image.lastIndexOf("_");
+    const type = piece.image.substring(firstSlash + 1, lastLowBar);
+    return type;
+  };
+
   const dropPiece = (e) => {
     if (grabbedPiece) {
       let [pieceNewX, pieceNewY] = returnGridValues(e);
-      setPieces((prev) => {
-        const pieces = prev.map((piece) => {
+
+      setPieces((boardState) => {
+        const pieces = boardState.map((piece) => {
           if (piece.x === gridX && piece.y === gridY) {
-            piece.x = pieceNewX;
-            piece.y = pieceNewY;
+            const validMove = isValidMove(
+              gridX,
+              gridY,
+              pieceNewX,
+              pieceNewY,
+              getPieceTypeFromImage(piece),
+              piece.team,
+              boardState
+            );
+            validMove
+              ? ([piece.x, piece.y] = [pieceNewX, pieceNewY])
+              : (grabbedPiece.style.position = "initial");
           }
           return piece;
         });
         return pieces;
       });
+
       setGrabbedPiece(null);
     }
   };
