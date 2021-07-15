@@ -8,4 +8,23 @@
     url("./IMAGES/background.jpg");
   background-size: cover;
   background-position: center;
+  .current-team {
+    position: absolute;
+    font-size: 32px;
+    text-transform: uppercase;
+    &.white {
+      color: #ebecd0;
+      bottom: 0px;
+    }
+    &.black {
+      color: #779556;
+      top: 0px;
+    }
+  }
+}
+
+@media screen and (max-height: 900px) {
+  .current-team {
+    display: none !important;
+  }
 }

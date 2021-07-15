@@ -3,7 +3,7 @@ import { isValidMove } from "../Rules/Rules";
 import Tile from "../Tile/Tile";
 import "./Board.scss";
 
-export const Board = () => {
+export const Board = ({ setAnnouncerTeam }) => {
   const initialBoard = [];
   const board = [];
   const yAxis = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -14,6 +14,10 @@ export const Board = () => {
   const [currentTeam, setCurrentTeam] = useState("our");
   const [grabbedPiece, setGrabbedPiece] = useState(null);
   const boardRef = useRef(null);
+  const [tileSizes, setTileSizes] = useState({
+    height: 0,
+    width: 0,
+  });
   const backLinePiecesPositions = [
     // Turele
     {
@@ -57,6 +61,7 @@ export const Board = () => {
 
   useEffect(() => {
     populatePieces();
+    setAnnouncerTeam(currentTeam);
     setPieces(initialBoard);
   }, []);
 
@@ -97,10 +102,15 @@ export const Board = () => {
   const returnGridValues = (e) => {
     // Valorile pe care sta o piesa
     const gridXValue = Math.floor(
-      (e.clientX - boardRef.current.offsetLeft) / 100
+      (e.clientX - boardRef.current?.offsetLeft) / tileSizes.width
     );
     const gridYValue = Math.abs(
-      Math.ceil((e.clientY - boardRef.current.offsetTop - 800) / 100)
+      Math.ceil(
+        (e.clientY -
+          boardRef.current?.offsetTop -
+          boardRef.current?.clientHeight) /
+          tileSizes.height
+      )
     );
     return [gridXValue, gridYValue];
   };
@@ -123,6 +133,7 @@ export const Board = () => {
             j={j}
             yAxis={yAxis}
             xAxis={xAxis}
+            setTileSizes={setTileSizes}
           />
         );
       }
@@ -132,13 +143,13 @@ export const Board = () => {
   const getPieceToCursor = (element, e) => {
     const pieceOffset = 20;
     // Partea stanga a tablei
-    const minX = boardRef.current.offsetLeft - pieceOffset;
+    const minX = boardRef.current?.offsetLeft - pieceOffset;
     // Partea de sus a tablei
-    const minY = boardRef.current.offsetTop - pieceOffset;
+    const minY = boardRef.current?.offsetTop - pieceOffset;
     // Partea dreapta a tablei
     const maxX =
-      boardRef.current.offsetLeft +
-      boardRef.current.clientWidth -
+      boardRef.current?.offsetLeft +
+      boardRef.current?.clientWidth -
       3 * pieceOffset;
     // Partea de jos a tablei
     const maxY =
@@ -228,7 +239,13 @@ export const Board = () => {
   };
 
   const switchNextTeam = () => {
-    currentTeam === "our" ? setCurrentTeam("opponent") : setCurrentTeam("our");
+    if (currentTeam === "our") {
+      setCurrentTeam("opponent");
+      setAnnouncerTeam("opponent");
+    } else {
+      setAnnouncerTeam("our");
+      setCurrentTeam("our");
+    }
   };
 
   return (

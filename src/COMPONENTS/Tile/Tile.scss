@@ -1,6 +1,5 @@
 .tile {
-  font-weight: 600;
-  font-size: 14px;
+  padding: 4px;
   color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
@@ -16,9 +15,9 @@
   .piece {
     background-position: center;
     background-size: cover;
-    height: 75%;
+    height: 100%;
     max-width: 75px;
-    width: 75%;
+    width: 100%;
     max-height: 75px;
     &:hover {
       cursor: grab;
@@ -26,5 +25,12 @@
     &:active {
       cursor: grabbing;
     }
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .piece {
+    max-width: 60px !important;
+    max-height: 60px !important;
   }
 }
