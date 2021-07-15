@@ -5,10 +5,13 @@ export const isValidMove = (
   newY,
   pieceType,
   team,
-  board
+  board,
+  currentTeam
 ) => {
-  if (pieceType === "pawn")
-    return pawnRules(prevX, prevY, newX, newY, pieceType, team, board);
+  if (team === currentTeam) {
+    if (pieceType === "pawn")
+      return pawnRules(prevX, prevY, newX, newY, pieceType, team, board);
+  }
 };
 
 const pawnRules = (prevX, prevY, newX, newY, pieceType, team, board) => {

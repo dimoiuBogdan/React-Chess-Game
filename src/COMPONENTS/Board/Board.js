@@ -11,8 +11,49 @@ export const Board = () => {
   const [pieces, setPieces] = useState([]);
   const [gridX, setGridX] = useState(0);
   const [gridY, setGridY] = useState(0);
+  const [currentTeam, setCurrentTeam] = useState("our");
   const [grabbedPiece, setGrabbedPiece] = useState(null);
   const boardRef = useRef(null);
+  const backLinePiecesPositions = [
+    // Turele
+    {
+      x: 0,
+      image: "PIECES_IMAGES/rook_b.png",
+    },
+    {
+      x: 7,
+      image: "PIECES_IMAGES/rook_b.png",
+    },
+    // Caii
+    {
+      x: 1,
+      image: "PIECES_IMAGES/knight_b.png",
+    },
+    {
+      x: 6,
+      image: "PIECES_IMAGES/knight_b.png",
+    },
+    // Nebunii
+    {
+      x: 2,
+      image: `PIECES_IMAGES/bishop_b.png`,
+    },
+    {
+      x: 5,
+      image: "PIECES_IMAGES/bishop_b.png",
+    },
+    // Regii
+    {
+      x: 3,
+      y: 7,
+      image: "PIECES_IMAGES/king_b.png",
+    },
+    // Reginele
+    {
+      x: 4,
+      image: "PIECES_IMAGES/queen_b.png",
+    },
+  ];
 
   useEffect(() => {
     populatePieces();
@@ -37,47 +78,6 @@ export const Board = () => {
     for (let j = 0; j < 8; j++)
       addPiece(j, 1, "PIECES_IMAGES/pawn_w.png", "our");
 
-    const backLinePiecesPositions = [
-      // Turele
-      {
-        x: 0,
-        image: "PIECES_IMAGES/rook_b.png",
-      },
-      {
-        x: 7,
-        image: "PIECES_IMAGES/rook_b.png",
-      },
-      // Caii
-      {
-        x: 1,
-        image: "PIECES_IMAGES/knight_b.png",
-      },
-      {
-        x: 6,
-        image: "PIECES_IMAGES/knight_b.png",
-      },
-      // Nebunii
-      {
-        x: 2,
-        image: `PIECES_IMAGES/bishop_b.png`,
-      },
-      {
-        x: 5,
-        image: "PIECES_IMAGES/bishop_b.png",
-      },
-      // Regii
-      {
-        x: 3,
-        y: 7,
-        image: "PIECES_IMAGES/king_b.png",
-      },
-      // Reginele
-      {
-        x: 4,
-        image: "PIECES_IMAGES/queen_b.png",
-      },
-    ];
-
     backLinePiecesPositions.forEach((piece) => {
       // Pentru a injumatati piesele, facem un for care verifica daca pozitia este 0 ( caz in care le plasam pe cele de jos ) sau 1 ( caz in care le plasam
       // pe cele de sus, respectiv de pe randul 7 )
@@ -95,6 +95,7 @@ export const Board = () => {
   };
 
   const returnGridValues = (e) => {
+    // Valorile pe care sta o piesa
     const gridXValue = Math.floor(
       (e.clientX - boardRef.current.offsetLeft) / 100
     );
@@ -200,7 +201,8 @@ export const Board = () => {
           pieceNewY,
           getPieceTypeFromImage(currentPiece),
           currentPiece.team,
-          pieces
+          pieces,
+          currentTeam
         );
 
         if (validMove) {
@@ -210,22 +212,23 @@ export const Board = () => {
               piece.x = pieceNewX;
               piece.y = pieceNewY;
               results.push(piece);
-            } else if (
-              /*Verificam daca exista o piesa pe pozitiile noi, caz in care nu o punem in results (BUGGED)*/ piece.x !==
-                pieceNewX ||
-              piece.y !== pieceNewY
-            ) {
-              results.push(piece);
+              //Verificam daca exista o piesa pe pozitiile noi, caz in care nu o punem in results (BUGGED)*/
             }
+            if (piece.x !== pieceNewX || piece.y !== pieceNewY)
+              results.push(piece);
 
             return results;
           }, []);
-
           setPieces(updatedPieces);
+          switchNextTeam();
         } else grabbedPiece.style.position = "initial";
       }
       setGrabbedPiece(null);
     }
+  };
+
+  const switchNextTeam = () => {
+    currentTeam === "our" ? setCurrentTeam("opponent") : setCurrentTeam("our");
   };
 
   return (
